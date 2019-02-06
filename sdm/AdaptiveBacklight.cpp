@@ -25,7 +25,7 @@
 #include "Utils.h"
 
 namespace vendor {
-namespace lineage {
+namespace mokee {
 namespace livedisplay {
 namespace V2_0 {
 namespace sdm {
@@ -40,7 +40,7 @@ bool AdaptiveBacklight::isSupported() {
     return GetBoolProperty(FOSS_PROPERTY, false);
 }
 
-// Methods from ::vendor::lineage::livedisplay::V2_0::IAdaptiveBacklight follow.
+// Methods from ::vendor::mokee::livedisplay::V2_0::IAdaptiveBacklight follow.
 Return<bool> AdaptiveBacklight::isEnabled() {
     return mEnabled;
 }
@@ -68,5 +68,5 @@ Return<bool> AdaptiveBacklight::setEnabled(bool enabled) {
 }  // namespace sdm
 }  // namespace V2_0
 }  // namespace livedisplay
-}  // namespace lineage
+}  // namespace mokee
 }  // namespace vendor

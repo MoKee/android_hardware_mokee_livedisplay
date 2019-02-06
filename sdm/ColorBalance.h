@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#ifndef VENDOR_LINEAGE_LIVEDISPLAY_V2_0_COLORBALANCE_H
-#define VENDOR_LINEAGE_LIVEDISPLAY_V2_0_COLORBALANCE_H
+#ifndef VENDOR_MOKEE_LIVEDISPLAY_V2_0_COLORBALANCE_H
+#define VENDOR_MOKEE_LIVEDISPLAY_V2_0_COLORBALANCE_H
 
-#include <vendor/lineage/livedisplay/2.0/IColorBalance.h>
+#include <vendor/mokee/livedisplay/2.0/IColorBalance.h>
 
 namespace vendor {
-namespace lineage {
+namespace mokee {
 namespace livedisplay {
 namespace V2_0 {
 namespace sdm {
@@ -34,7 +34,7 @@ class ColorBalance : public IColorBalance {
 
     bool isSupported();
 
-    // Methods from ::vendor::lineage::livedisplay::V2_0::IColorBalance follow.
+    // Methods from ::vendor::mokee::livedisplay::V2_0::IColorBalance follow.
     Return<void> getColorBalanceRange(getColorBalanceRange_cb _hidl_cb) override;
     Return<int32_t> getColorBalance() override;
     Return<bool> setColorBalance(int32_t value) override;
@@ -53,7 +53,7 @@ class ColorBalance : public IColorBalance {
 }  // namespace sdm
 }  // namespace V2_0
 }  // namespace livedisplay
-}  // namespace lineage
+}  // namespace mokee
 }  // namespace vendor
 
-#endif  // VENDOR_LINEAGE_LIVEDISPLAY_V2_0_COLORBALANCE_H
+#endif  // VENDOR_MOKEE_LIVEDISPLAY_V2_0_COLORBALANCE_H

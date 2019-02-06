@@ -29,7 +29,7 @@
 #include "Utils.h"
 
 namespace vendor {
-namespace lineage {
+namespace mokee {
 namespace livedisplay {
 namespace V2_0 {
 namespace sdm {
@@ -69,5 +69,5 @@ int Utils::sendDPPSCommand(char* buf, size_t len) {
 }  // namespace sdm
 }  // namespace V2_0
 }  // namespace livedisplay
-}  // namespace lineage
+}  // namespace mokee
 }  // namespace vendor

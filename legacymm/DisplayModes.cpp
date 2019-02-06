@@ -22,7 +22,7 @@
 #include "Types.h"
 
 namespace vendor {
-namespace lineage {
+namespace mokee {
 namespace livedisplay {
 namespace V2_0 {
 namespace legacymm {
@@ -139,7 +139,7 @@ DisplayMode DisplayModes::getDefaultDisplayModeInternal() {
     return DisplayMode{-1, ""};
 }
 
-// Methods from ::vendor::lineage::livedisplay::V2_0::IDisplayModes follow.
+// Methods from ::vendor::mokee::livedisplay::V2_0::IDisplayModes follow.
 Return<void> DisplayModes::getDisplayModes(getDisplayModes_cb _hidl_cb) {
     _hidl_cb(getDisplayModesInternal());
     return Void();
@@ -185,5 +185,5 @@ Return<bool> DisplayModes::setDisplayMode(int32_t modeID, bool makeDefault) {
 }  // namespace legacymm
 }  // namespace V2_0
 }  // namespace livedisplay
-}  // namespace lineage
+}  // namespace mokee
 }  // namespace vendor

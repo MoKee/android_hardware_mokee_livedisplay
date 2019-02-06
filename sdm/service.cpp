@@ -17,9 +17,9 @@
 #include <dlfcn.h>
 
 #ifdef LIVES_IN_SYSTEM
-#define LOG_TAG "lineage.livedisplay@2.0-service-sdm"
+#define LOG_TAG "mokee.livedisplay@2.0-service-sdm"
 #else
-#define LOG_TAG "vendor.lineage.livedisplay@2.0-service-sdm"
+#define LOG_TAG "vendor.mokee.livedisplay@2.0-service-sdm"
 #endif
 
 #include <android-base/logging.h>
@@ -43,14 +43,14 @@ using android::status_t;
 using android::hardware::configureRpcThreadpool;
 using android::hardware::joinRpcThreadpool;
 
-using ::vendor::lineage::livedisplay::V2_0::IAdaptiveBacklight;
-using ::vendor::lineage::livedisplay::V2_0::IColorBalance;
-using ::vendor::lineage::livedisplay::V2_0::IDisplayModes;
-using ::vendor::lineage::livedisplay::V2_0::IPictureAdjustment;
-using ::vendor::lineage::livedisplay::V2_0::sdm::AdaptiveBacklight;
-using ::vendor::lineage::livedisplay::V2_0::sdm::ColorBalance;
-using ::vendor::lineage::livedisplay::V2_0::sdm::DisplayModes;
-using ::vendor::lineage::livedisplay::V2_0::sdm::PictureAdjustment;
+using ::vendor::mokee::livedisplay::V2_0::IAdaptiveBacklight;
+using ::vendor::mokee::livedisplay::V2_0::IColorBalance;
+using ::vendor::mokee::livedisplay::V2_0::IDisplayModes;
+using ::vendor::mokee::livedisplay::V2_0::IPictureAdjustment;
+using ::vendor::mokee::livedisplay::V2_0::sdm::AdaptiveBacklight;
+using ::vendor::mokee::livedisplay::V2_0::sdm::ColorBalance;
+using ::vendor::mokee::livedisplay::V2_0::sdm::DisplayModes;
+using ::vendor::mokee::livedisplay::V2_0::sdm::PictureAdjustment;
 
 int main() {
     // Vendor backend
