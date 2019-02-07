@@ -18,7 +18,6 @@ cc_defaults {
     relative_install_path: "hw",
     srcs: [
         "AdaptiveBacklight.cpp",
-        "ColorBalance.cpp",
         "DisplayModes.cpp",
         "PictureAdjustment.cpp",
         "Utils.cpp",
@@ -47,5 +46,5 @@ cc_binary {
     name: "vendor.mokee.livedisplay@2.0-service-sdm",
     init_rc: ["vendor.mokee.livedisplay@2.0-service-sdm.rc"],
     defaults: ["livedisplay_sdm_defaults"],
-    proprietary: true,
+    vendor: true,
 }

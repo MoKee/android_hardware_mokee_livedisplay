@@ -17,9 +17,8 @@ cc_binary {
     init_rc: ["vendor.mokee.livedisplay@2.0-service-legacymm.rc"],
     defaults: ["hidl_defaults"],
     relative_install_path: "hw",
-    proprietary: true,
+    vendor: true,
     srcs: [
-        "ColorBalance.cpp",
         "DisplayModes.cpp",
         "PictureAdjustment.cpp",
         "service.cpp",
