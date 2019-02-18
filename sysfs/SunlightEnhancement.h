@@ -18,8 +18,6 @@
 #define VENDOR_MOKEE_LIVEDISPLAY_V2_0_SUNLIGHTENHANCEMENT_H
 
 #include <vendor/mokee/livedisplay/2.0/ISunlightEnhancement.h>
-#include <hidl/MQDescriptor.h>
-#include <hidl/Status.h>
 
 namespace vendor {
 namespace mokee {
@@ -27,25 +25,24 @@ namespace livedisplay {
 namespace V2_0 {
 namespace sysfs {
 
-using ::android::hardware::hidl_array;
-using ::android::hardware::hidl_memory;
-using ::android::hardware::hidl_string;
-using ::android::hardware::hidl_vec;
 using ::android::hardware::Return;
 using ::android::hardware::Void;
-using ::android::sp;
 
-struct SunlightEnhancement : public ISunlightEnhancement {
+#define FILE_HBM "/sys/class/graphics/fb0/hbm"
+#define FILE_SRE "/sys/class/graphics/fb0/sre"
+
+class SunlightEnhancement : public ISunlightEnhancement {
+   public:
+    bool isSupported();
+
     // Methods from ::vendor::mokee::livedisplay::V2_0::ISunlightEnhancement follow.
     Return<bool> isEnabled() override;
     Return<bool> setEnabled(bool enabled) override;
 
-    // Methods from ::android::hidl::base::V1_0::IBase follow.
-
+   private:
+    std::string mFile;
+    int32_t mEnabledMode;
 };
-
-// FIXME: most likely delete, this is only for passthrough implementations
-// extern "C" ISunlightEnhancement* HIDL_FETCH_ISunlightEnhancement(const char* name);
 
 }  // namespace sysfs
 }  // namespace V2_0
