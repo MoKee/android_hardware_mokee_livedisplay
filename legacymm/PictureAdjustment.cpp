@@ -21,7 +21,7 @@
 #include "Types.h"
 
 namespace vendor {
-namespace lineage {
+namespace mokee {
 namespace livedisplay {
 namespace V2_0 {
 namespace legacymm {
@@ -80,7 +80,7 @@ void PictureAdjustment::updateDefaultPictureAdjustment() {
     }
 }
 
-// Methods from ::vendor::lineage::livedisplay::V2_0::IPictureAdjustment follow.
+// Methods from ::vendor::mokee::livedisplay::V2_0::IPictureAdjustment follow.
 Return<void> PictureAdjustment::getHueRange(getHueRange_cb _hidl_cb) {
     FloatRange range{};
     mm_pa_range r{};
@@ -174,7 +174,7 @@ Return<void> PictureAdjustment::getDefaultPictureAdjustment(
 }
 
 Return<bool> PictureAdjustment::setPictureAdjustment(
-    const ::vendor::lineage::livedisplay::V2_0::HSIC& hsic) {
+    const ::vendor::mokee::livedisplay::V2_0::HSIC& hsic) {
     mm_pa_config config = {0xF,
                            {static_cast<int>(hsic.hue), static_cast<int>(hsic.saturation),
                             static_cast<int>(hsic.intensity), static_cast<int>(hsic.contrast),
@@ -190,5 +190,5 @@ Return<bool> PictureAdjustment::setPictureAdjustment(
 }  // namespace legacymm
 }  // namespace V2_0
 }  // namespace livedisplay
-}  // namespace lineage
+}  // namespace mokee
 }  // namespace vendor

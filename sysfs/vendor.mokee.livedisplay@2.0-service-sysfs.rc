@@ -17,7 +17,7 @@ on init
     chown system system /sys/devices/virtual/graphics/fb0/reading_mode
     chmod 0660 /sys/devices/virtual/graphics/fb0/reading_mode
 
-service livedisplay-hal-2-0-sysfs /system/bin/hw/lineage.livedisplay@2.0-service-sysfs
+service vendor.livedisplay-hal-2-0-sysfs /vendor/bin/hw/vendor.mokee.livedisplay@2.0-service-sysfs
     class hal
     user system
     group system

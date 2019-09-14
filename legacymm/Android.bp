@@ -13,8 +13,8 @@
 // limitations under the License.
 
 cc_binary {
-    name: "vendor.lineage.livedisplay@2.0-service-legacymm",
-    init_rc: ["vendor.lineage.livedisplay@2.0-service-legacymm.rc"],
+    name: "vendor.mokee.livedisplay@2.0-service-legacymm",
+    init_rc: ["vendor.mokee.livedisplay@2.0-service-legacymm.rc"],
     defaults: ["hidl_defaults"],
     relative_install_path: "hw",
     vendor: true,
@@ -30,6 +30,6 @@ cc_binary {
         "libhidlbase",
         "libhidltransport",
         "libutils",
-        "vendor.lineage.livedisplay@2.0",
+        "vendor.mokee.livedisplay@2.0",
     ],
 }

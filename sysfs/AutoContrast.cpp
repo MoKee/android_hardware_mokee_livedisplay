@@ -26,7 +26,7 @@ using android::base::Trim;
 using android::base::WriteStringToFile;
 
 namespace vendor {
-namespace lineage {
+namespace mokee {
 namespace livedisplay {
 namespace V2_0 {
 namespace sysfs {
@@ -37,7 +37,7 @@ bool AutoContrast::isSupported() {
     return aco.good();
 }
 
-// Methods from ::vendor::lineage::livedisplay::V2_0::IAutoContrast follow.
+// Methods from ::vendor::mokee::livedisplay::V2_0::IAutoContrast follow.
 Return<bool> AutoContrast::isEnabled() {
     std::string tmp;
     int32_t contents = 0;
@@ -56,5 +56,5 @@ Return<bool> AutoContrast::setEnabled(bool enabled) {
 }  // namespace sysfs
 }  // namespace V2_0
 }  // namespace livedisplay
-}  // namespace lineage
+}  // namespace mokee
 }  // namespace vendor

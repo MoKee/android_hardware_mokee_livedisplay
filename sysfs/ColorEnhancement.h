@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#ifndef VENDOR_LINEAGE_LIVEDISPLAY_V2_0_COLORENHANCEMENT_H
-#define VENDOR_LINEAGE_LIVEDISPLAY_V2_0_COLORENHANCEMENT_H
+#ifndef VENDOR_MOKEE_LIVEDISPLAY_V2_0_COLORENHANCEMENT_H
+#define VENDOR_MOKEE_LIVEDISPLAY_V2_0_COLORENHANCEMENT_H
 
-#include <vendor/lineage/livedisplay/2.0/IColorEnhancement.h>
+#include <vendor/mokee/livedisplay/2.0/IColorEnhancement.h>
 
 namespace vendor {
-namespace lineage {
+namespace mokee {
 namespace livedisplay {
 namespace V2_0 {
 namespace sysfs {
@@ -34,7 +34,7 @@ class ColorEnhancement : public IColorEnhancement {
    public:
     bool isSupported();
 
-    // Methods from ::vendor::lineage::livedisplay::V2_0::IColorEnhancement follow.
+    // Methods from ::vendor::mokee::livedisplay::V2_0::IColorEnhancement follow.
     Return<bool> isEnabled() override;
     Return<bool> setEnabled(bool enabled) override;
 };
@@ -42,7 +42,7 @@ class ColorEnhancement : public IColorEnhancement {
 }  // namespace sysfs
 }  // namespace V2_0
 }  // namespace livedisplay
-}  // namespace lineage
+}  // namespace mokee
 }  // namespace vendor
 
-#endif  // VENDOR_LINEAGE_LIVEDISPLAY_V2_0_COLORENHANCEMENT_H
+#endif  // VENDOR_MOKEE_LIVEDISPLAY_V2_0_COLORENHANCEMENT_H

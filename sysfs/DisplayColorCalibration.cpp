@@ -27,7 +27,7 @@ using android::base::Trim;
 using android::base::WriteStringToFile;
 
 namespace vendor {
-namespace lineage {
+namespace mokee {
 namespace livedisplay {
 namespace V2_0 {
 namespace sysfs {
@@ -38,7 +38,7 @@ bool DisplayColorCalibration::isSupported() {
     return rgb.good();
 }
 
-// Methods from ::vendor::lineage::livedisplay::V2_0::IDisplayColorCalibration follow.
+// Methods from ::vendor::mokee::livedisplay::V2_0::IDisplayColorCalibration follow.
 Return<int32_t> DisplayColorCalibration::getMaxValue() {
     return 32768;
 }
@@ -75,5 +75,5 @@ Return<bool> DisplayColorCalibration::setCalibration(const hidl_vec<int32_t>& rg
 }  // namespace sysfs
 }  // namespace V2_0
 }  // namespace livedisplay
-}  // namespace lineage
+}  // namespace mokee
 }  // namespace vendor

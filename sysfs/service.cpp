@@ -15,9 +15,9 @@
  */
 
 #ifdef LIVES_IN_SYSTEM
-#define LOG_TAG "lineage.livedisplay@2.0-service-sysfs"
+#define LOG_TAG "mokee.livedisplay@2.0-service-sysfs"
 #else
-#define LOG_TAG "vendor.lineage.livedisplay@2.0-service-sysfs"
+#define LOG_TAG "vendor.mokee.livedisplay@2.0-service-sysfs"
 #endif
 
 #include <android-base/logging.h>
@@ -37,18 +37,18 @@ using android::status_t;
 using android::hardware::configureRpcThreadpool;
 using android::hardware::joinRpcThreadpool;
 
-using ::vendor::lineage::livedisplay::V2_0::IAdaptiveBacklight;
-using ::vendor::lineage::livedisplay::V2_0::IAutoContrast;
-using ::vendor::lineage::livedisplay::V2_0::IColorEnhancement;
-using ::vendor::lineage::livedisplay::V2_0::IDisplayColorCalibration;
-using ::vendor::lineage::livedisplay::V2_0::IReadingEnhancement;
-using ::vendor::lineage::livedisplay::V2_0::ISunlightEnhancement;
-using ::vendor::lineage::livedisplay::V2_0::sysfs::AdaptiveBacklight;
-using ::vendor::lineage::livedisplay::V2_0::sysfs::AutoContrast;
-using ::vendor::lineage::livedisplay::V2_0::sysfs::ColorEnhancement;
-using ::vendor::lineage::livedisplay::V2_0::sysfs::DisplayColorCalibration;
-using ::vendor::lineage::livedisplay::V2_0::sysfs::ReadingEnhancement;
-using ::vendor::lineage::livedisplay::V2_0::sysfs::SunlightEnhancement;
+using ::vendor::mokee::livedisplay::V2_0::IAdaptiveBacklight;
+using ::vendor::mokee::livedisplay::V2_0::IAutoContrast;
+using ::vendor::mokee::livedisplay::V2_0::IColorEnhancement;
+using ::vendor::mokee::livedisplay::V2_0::IDisplayColorCalibration;
+using ::vendor::mokee::livedisplay::V2_0::IReadingEnhancement;
+using ::vendor::mokee::livedisplay::V2_0::ISunlightEnhancement;
+using ::vendor::mokee::livedisplay::V2_0::sysfs::AdaptiveBacklight;
+using ::vendor::mokee::livedisplay::V2_0::sysfs::AutoContrast;
+using ::vendor::mokee::livedisplay::V2_0::sysfs::ColorEnhancement;
+using ::vendor::mokee::livedisplay::V2_0::sysfs::DisplayColorCalibration;
+using ::vendor::mokee::livedisplay::V2_0::sysfs::ReadingEnhancement;
+using ::vendor::mokee::livedisplay::V2_0::sysfs::SunlightEnhancement;
 
 int main() {
     // sysfs-based HALs

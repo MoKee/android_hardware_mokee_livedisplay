@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#ifndef VENDOR_LINEAGE_LIVEDISPLAY_V2_0_READINGENHANCEMENT_H
-#define VENDOR_LINEAGE_LIVEDISPLAY_V2_0_READINGENHANCEMENT_H
+#ifndef VENDOR_MOKEE_LIVEDISPLAY_V2_0_READINGENHANCEMENT_H
+#define VENDOR_MOKEE_LIVEDISPLAY_V2_0_READINGENHANCEMENT_H
 
-#include <vendor/lineage/livedisplay/2.0/IReadingEnhancement.h>
+#include <vendor/mokee/livedisplay/2.0/IReadingEnhancement.h>
 
 namespace vendor {
-namespace lineage {
+namespace mokee {
 namespace livedisplay {
 namespace V2_0 {
 namespace sysfs {
@@ -34,7 +34,7 @@ class ReadingEnhancement : public IReadingEnhancement {
    public:
     bool isSupported();
 
-    // Methods from ::vendor::lineage::livedisplay::V2_0::IReadingEnhancement follow.
+    // Methods from ::vendor::mokee::livedisplay::V2_0::IReadingEnhancement follow.
     Return<bool> isEnabled() override;
     Return<bool> setEnabled(bool enabled) override;
 };
@@ -42,7 +42,7 @@ class ReadingEnhancement : public IReadingEnhancement {
 }  // namespace sysfs
 }  // namespace V2_0
 }  // namespace livedisplay
-}  // namespace lineage
+}  // namespace mokee
 }  // namespace vendor
 
-#endif  // VENDOR_LINEAGE_LIVEDISPLAY_V2_0_READINGENHANCEMENT_H
+#endif  // VENDOR_MOKEE_LIVEDISPLAY_V2_0_READINGENHANCEMENT_H
