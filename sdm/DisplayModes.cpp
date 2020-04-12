@@ -106,16 +106,16 @@ std::vector<DisplayMode> DisplayModes::getDisplayModesInternal() {
     }
 
     if (disp_api_get_display_modes != nullptr) {
-        sdm_disp_mode* tmp = new sdm_disp_mode[count];
+        sdm_disp_mode* tmp = new sdm_disp_mode[count]();
         for (int i = 0; i < count; i++) {
             tmp[i].id = -1;
-            tmp[i].name = new char[128];
+            tmp[i].name = new char[128]();
             tmp[i].len = 128;
         }
 
         if (disp_api_get_display_modes(mCookie, 0, 0, tmp, count, &flags) == 0) {
             for (int i = 0; i < count; i++) {
-                modes.push_back(DisplayMode{tmp[i].id, std::string(tmp[i].name)});
+                modes.push_back(DisplayMode{tmp[i].id, tmp[i].name});
             }
         }
 
