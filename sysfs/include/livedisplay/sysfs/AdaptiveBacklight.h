@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The LineageOS Project
+ * Copyright (C) 2019-2020 The LineageOS Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-#ifndef VENDOR_MOKEE_LIVEDISPLAY_V2_0_ADAPTIVEBACKLIGHT_H
-#define VENDOR_MOKEE_LIVEDISPLAY_V2_0_ADAPTIVEBACKLIGHT_H
+#pragma once
 
 #include <vendor/mokee/livedisplay/2.0/IAdaptiveBacklight.h>
 
@@ -26,15 +25,10 @@ namespace V2_0 {
 namespace sysfs {
 
 using ::android::hardware::Return;
-using ::android::hardware::Void;
-
-#define FOSS_PROPERTY "ro.vendor.display.foss"
-
-#define FILE_ACL "/sys/class/graphics/fb0/acl"
-#define FILE_CABC "/sys/class/graphics/fb0/cabc"
 
 class AdaptiveBacklight : public IAdaptiveBacklight {
   public:
+    AdaptiveBacklight();
     bool isSupported();
 
     // Methods from ::vendor::mokee::livedisplay::V2_0::IAdaptiveBacklight follow.
@@ -42,7 +36,7 @@ class AdaptiveBacklight : public IAdaptiveBacklight {
     Return<bool> setEnabled(bool enabled) override;
 
   private:
-    std::string mFile;
+    const char* file_;
 };
 
 }  // namespace sysfs
@@ -50,5 +44,3 @@ class AdaptiveBacklight : public IAdaptiveBacklight {
 }  // namespace livedisplay
 }  // namespace mokee
 }  // namespace vendor
-
-#endif  // VENDOR_MOKEE_LIVEDISPLAY_V2_0_ADAPTIVEBACKLIGHT_H

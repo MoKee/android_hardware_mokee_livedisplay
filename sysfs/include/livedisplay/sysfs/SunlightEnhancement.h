@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The LineageOS Project
+ * Copyright (C) 2019-2020 The LineageOS Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,37 +14,34 @@
  * limitations under the License.
  */
 
-#ifndef VENDOR_MOKEE_LIVEDISPLAY_V2_0_ADAPTIVEBACKLIGHT_H
-#define VENDOR_MOKEE_LIVEDISPLAY_V2_0_ADAPTIVEBACKLIGHT_H
+#pragma once
 
-#include <vendor/mokee/livedisplay/2.0/IAdaptiveBacklight.h>
+#include <vendor/mokee/livedisplay/2.0/ISunlightEnhancement.h>
 
 namespace vendor {
 namespace mokee {
 namespace livedisplay {
 namespace V2_0 {
-namespace sdm {
+namespace sysfs {
 
 using ::android::hardware::Return;
 
-class AdaptiveBacklight : public IAdaptiveBacklight {
+class SunlightEnhancement : public ISunlightEnhancement {
   public:
-    AdaptiveBacklight();
-
+    SunlightEnhancement();
     bool isSupported();
 
-    // Methods from ::vendor::mokee::livedisplay::V2_0::IAdaptiveBacklight follow.
+    // Methods from ::vendor::mokee::livedisplay::V2_0::ISunlightEnhancement follow.
     Return<bool> isEnabled() override;
     Return<bool> setEnabled(bool enabled) override;
 
   private:
-    bool mEnabled;
+    const char* file_;
+    int32_t enabled_mode_;
 };
 
-}  // namespace sdm
+}  // namespace sysfs
 }  // namespace V2_0
 }  // namespace livedisplay
 }  // namespace mokee
 }  // namespace vendor
-
-#endif  // VENDOR_MOKEE_LIVEDISPLAY_V2_0_ADAPTIVEBACKLIGHT_H

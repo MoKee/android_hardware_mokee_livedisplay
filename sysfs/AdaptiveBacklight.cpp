@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The LineageOS Project
+ * Copyright (C) 2019-2020 The LineageOS Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,22 @@
  * limitations under the License.
  */
 
-#include "AdaptiveBacklight.h"
+#include "livedisplay/sysfs/AdaptiveBacklight.h"
 
 #include <android-base/file.h>
 #include <android-base/properties.h>
 #include <android-base/strings.h>
 
-#include <fstream>
+using ::android::base::GetBoolProperty;
+using ::android::base::ReadFileToString;
+using ::android::base::Trim;
+using ::android::base::WriteStringToFile;
 
-using android::base::GetBoolProperty;
-using android::base::ReadFileToString;
-using android::base::Trim;
-using android::base::WriteStringToFile;
+namespace {
+constexpr const char* kFileAcl = "/sys/class/graphics/fb0/acl";
+constexpr const char* kFileCabc = "/sys/class/graphics/fb0/cabc";
+constexpr const char* kFossProperty = "ro.vendor.display.foss";
+}  // anonymous namespace
 
 namespace vendor {
 namespace mokee {
@@ -33,21 +37,21 @@ namespace livedisplay {
 namespace V2_0 {
 namespace sysfs {
 
+AdaptiveBacklight::AdaptiveBacklight() {
+    if (!access(kFileAcl, R_OK | W_OK)) {
+        file_ = kFileAcl;
+    } else if (!access(kFileCabc, R_OK | W_OK)) {
+        file_ = kFileCabc;
+    } else {
+        file_ = nullptr;
+    }
+}
+
 bool AdaptiveBacklight::isSupported() {
-    if (GetBoolProperty(FOSS_PROPERTY, false)) {
+    if (GetBoolProperty(kFossProperty, false) || file_ == nullptr) {
         return false;
     }
-
-    std::fstream acl(FILE_ACL, acl.in | acl.out);
-    std::fstream cabc(FILE_CABC, cabc.in | cabc.out);
-
-    if (acl.good()) {
-        mFile = FILE_ACL;
-    } else if (cabc.good()) {
-        mFile = FILE_CABC;
-    }
-
-    return !mFile.empty();
+    return true;
 }
 
 // Methods from ::vendor::mokee::livedisplay::V2_0::IAdaptiveBacklight follow.
@@ -55,7 +59,7 @@ Return<bool> AdaptiveBacklight::isEnabled() {
     std::string tmp;
     int32_t contents = 0;
 
-    if (ReadFileToString(mFile, &tmp)) {
+    if (ReadFileToString(file_, &tmp)) {
         contents = std::stoi(Trim(tmp));
     }
 
@@ -63,7 +67,7 @@ Return<bool> AdaptiveBacklight::isEnabled() {
 }
 
 Return<bool> AdaptiveBacklight::setEnabled(bool enabled) {
-    return WriteStringToFile(enabled ? "1" : "0", mFile, true);
+    return WriteStringToFile(std::to_string(enabled), file_, true);
 }
 
 }  // namespace sysfs

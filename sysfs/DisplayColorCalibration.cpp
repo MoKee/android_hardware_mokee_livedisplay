@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The LineageOS Project
+ * Copyright (C) 2019-2020 The LineageOS Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,29 @@
  * limitations under the License.
  */
 
-#include "DisplayColorCalibration.h"
+#ifdef LIVES_IN_SYSTEM
+#define LOG_TAG "mokee.livedisplay@2.0-impl-sysfs"
+#else
+#define LOG_TAG "vendor.mokee.livedisplay@2.0-impl-sysfs"
+#endif
+
+#include "livedisplay/sysfs/DisplayColorCalibration.h"
 
 #include <android-base/file.h>
+#include <android-base/logging.h>
+#include <android-base/stringprintf.h>
 #include <android-base/strings.h>
 
-#include <fstream>
+namespace {
+constexpr const char* kFileRgb = "/sys/class/graphics/fb0/rgb";
+};  // anonymous namespace
 
-using android::base::ReadFileToString;
-using android::base::Split;
-using android::base::Trim;
-using android::base::WriteStringToFile;
+using ::android::base::ReadFileToString;
+using ::android::base::Split;
+using ::android::base::StringPrintf;
+using ::android::base::Trim;
+using ::android::base::WriteStringToFile;
+using ::android::hardware::Void;
 
 namespace vendor {
 namespace mokee {
@@ -33,9 +45,7 @@ namespace V2_0 {
 namespace sysfs {
 
 bool DisplayColorCalibration::isSupported() {
-    std::fstream rgb(FILE_RGB, rgb.in | rgb.out);
-
-    return rgb.good();
+    return !access(kFileRgb, R_OK | W_OK);
 }
 
 // Methods from ::vendor::mokee::livedisplay::V2_0::IDisplayColorCalibration follow.
@@ -51,9 +61,8 @@ Return<void> DisplayColorCalibration::getCalibration(getCalibration_cb _hidl_cb)
     std::vector<int32_t> rgb;
     std::string tmp;
 
-    if (ReadFileToString(FILE_RGB, &tmp)) {
-        std::vector<std::string> colors = Split(Trim(tmp), " ");
-        for (const std::string& color : colors) {
+    if (ReadFileToString(kFileRgb, &tmp)) {
+        for (auto&& color : Split(Trim(tmp), " ")) {
             rgb.push_back(std::stoi(color));
         }
     }
@@ -63,13 +72,12 @@ Return<void> DisplayColorCalibration::getCalibration(getCalibration_cb _hidl_cb)
 }
 
 Return<bool> DisplayColorCalibration::setCalibration(const hidl_vec<int32_t>& rgb) {
-    std::string contents;
-
-    for (const int32_t& color : rgb) {
-        contents += std::to_string(color) + " ";
+    if (rgb.size() != 3) {
+        LOG(ERROR) << "Unrecognized RGB data!";
+        return false;
     }
 
-    return WriteStringToFile(Trim(contents), FILE_RGB, true);
+    return WriteStringToFile(StringPrintf("%d %d %d", rgb[0], rgb[1], rgb[2]), kFileRgb, true);
 }
 
 }  // namespace sysfs

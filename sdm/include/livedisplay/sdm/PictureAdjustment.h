@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The LineageOS Project
+ * Copyright (C) 2019-2020 The LineageOS Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-#ifndef VENDOR_MOKEE_LIVEDISPLAY_V2_0_PICTUREADJUSTMENT_H
-#define VENDOR_MOKEE_LIVEDISPLAY_V2_0_PICTUREADJUSTMENT_H
+#pragma once
 
+#include <android-base/macros.h>
 #include <vendor/mokee/livedisplay/2.0/IPictureAdjustment.h>
+
+#include "SDMController.h"
 
 namespace vendor {
 namespace mokee {
@@ -25,15 +27,13 @@ namespace livedisplay {
 namespace V2_0 {
 namespace sdm {
 
-using ::android::sp;
 using ::android::hardware::Return;
-using ::android::hardware::Void;
 
 class PictureAdjustment : public IPictureAdjustment {
   public:
-    PictureAdjustment(void* libHandle, uint64_t cookie);
+    explicit PictureAdjustment(std::shared_ptr<SDMController> controller);
 
-    bool isSupported();
+    void updateDefaultPictureAdjustment();
 
     // Methods from ::vendor::mokee::livedisplay::V2_0::IPictureAdjustment follow.
     Return<void> getHueRange(getHueRange_cb _hidl_cb) override;
@@ -46,20 +46,14 @@ class PictureAdjustment : public IPictureAdjustment {
     Return<bool> setPictureAdjustment(
             const ::vendor::mokee::livedisplay::V2_0::HSIC& hsic) override;
 
-    static void updateDefaultPictureAdjustment();
-
   private:
-    void* mLibHandle;
-    uint64_t mCookie;
+    std::shared_ptr<SDMController> controller_;
+    HSIC default_pa_ = {};
 
-    int32_t (*disp_api_get_feature_version)(uint64_t, uint32_t, void*, uint32_t*);
-    int32_t (*disp_api_get_global_pa_range)(uint64_t, uint32_t, void*);
-    int32_t (*disp_api_get_global_pa_config)(uint64_t, uint32_t, uint32_t*, void*);
-    int32_t (*disp_api_set_global_pa_config)(uint64_t, uint32_t, uint32_t, void*);
-
+    bool isReady();
     HSIC getPictureAdjustmentInternal();
 
-    HSIC mDefaultPictureAdjustment;
+    DISALLOW_IMPLICIT_CONSTRUCTORS(PictureAdjustment);
 };
 
 }  // namespace sdm
@@ -67,5 +61,3 @@ class PictureAdjustment : public IPictureAdjustment {
 }  // namespace livedisplay
 }  // namespace mokee
 }  // namespace vendor
-
-#endif  // VENDOR_MOKEE_LIVEDISPLAY_V2_0_PICTUREADJUSTMENT_H

@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2019 The LineageOS Project
+ * Copyright (C) 2016 The CyanogenMod Project
+ *               2017-2020 The LineageOS Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,35 +15,34 @@
  * limitations under the License.
  */
 
-#ifndef VENDOR_MOKEE_LIVEDISPLAY_V2_0_READINGENHANCEMENT_H
-#define VENDOR_MOKEE_LIVEDISPLAY_V2_0_READINGENHANCEMENT_H
+#pragma once
 
-#include <vendor/mokee/livedisplay/2.0/IReadingEnhancement.h>
+#include "SDMController.h"
 
 namespace vendor {
 namespace mokee {
 namespace livedisplay {
 namespace V2_0 {
-namespace sysfs {
+namespace sdm {
+namespace utils {
 
-using ::android::hardware::Return;
-using ::android::hardware::Void;
-
-#define FILE_RE "/sys/class/graphics/fb0/reading_mode"
-
-class ReadingEnhancement : public IReadingEnhancement {
-  public:
-    bool isSupported();
-
-    // Methods from ::vendor::mokee::livedisplay::V2_0::IReadingEnhancement follow.
-    Return<bool> isEnabled() override;
-    Return<bool> setEnabled(bool enabled) override;
+enum FeatureVerSw {
+    FEATURE_VER_SW_API = 0,
+    FEATURE_VER_SW_PA_API,
+    FEATURE_VER_SW_MEMCOLOR_API,
+    FEATURE_VER_SW_COLORBAL_API,
+    FEATURE_VER_SW_SAVEMODES_API,
+    FEATURE_VER_SW_ADAPT_BACKLIGHT_API,
+    FEATURE_VER_SW_SVI_API,
+    FEATURE_VER_SW_DISP_INFO_API
 };
 
-}  // namespace sysfs
+status_t CheckFeatureVersion(const std::shared_ptr<SDMController>& controller,
+                             FeatureVerSw feature);
+
+}  // namespace utils
+}  // namespace sdm
 }  // namespace V2_0
 }  // namespace livedisplay
 }  // namespace mokee
 }  // namespace vendor
-
-#endif  // VENDOR_MOKEE_LIVEDISPLAY_V2_0_READINGENHANCEMENT_H

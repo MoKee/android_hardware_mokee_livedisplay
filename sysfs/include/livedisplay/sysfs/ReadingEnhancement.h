@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2016 The CyanogenMod Project
- *               2017-2019 The LineageOS Project
+ * Copyright (C) 2019-2020 The LineageOS Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,26 +14,29 @@
  * limitations under the License.
  */
 
-#ifndef VENDOR_MOKEE_LIVEDISPLAY_V2_0_SDM_UTILS_H
-#define VENDOR_MOKEE_LIVEDISPLAY_V2_0_SDM_UTILS_H
+#pragma once
 
-#include <stdlib.h>
+#include <vendor/mokee/livedisplay/2.0/IReadingEnhancement.h>
 
 namespace vendor {
 namespace mokee {
 namespace livedisplay {
 namespace V2_0 {
-namespace sdm {
+namespace sysfs {
 
-class Utils {
+using ::android::hardware::Return;
+
+class ReadingEnhancement : public IReadingEnhancement {
   public:
-    static int sendDPPSCommand(char* buf, size_t len);
+    static bool isSupported();
+
+    // Methods from ::vendor::mokee::livedisplay::V2_0::IReadingEnhancement follow.
+    Return<bool> isEnabled() override;
+    Return<bool> setEnabled(bool enabled) override;
 };
 
-}  // namespace sdm
+}  // namespace sysfs
 }  // namespace V2_0
 }  // namespace livedisplay
 }  // namespace mokee
 }  // namespace vendor
-
-#endif  // VENDOR_MOKEE_LIVEDISPLAY_V2_0_SDM_UTILS_H

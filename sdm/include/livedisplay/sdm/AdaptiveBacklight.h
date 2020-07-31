@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The LineageOS Project
+ * Copyright (C) 2019-2020 The LineageOS Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,35 +14,32 @@
  * limitations under the License.
  */
 
-#ifndef VENDOR_MOKEE_LIVEDISPLAY_V2_0_AUTOCONTRAST_H
-#define VENDOR_MOKEE_LIVEDISPLAY_V2_0_AUTOCONTRAST_H
+#pragma once
 
-#include <vendor/mokee/livedisplay/2.0/IAutoContrast.h>
+#include <vendor/mokee/livedisplay/2.0/IAdaptiveBacklight.h>
 
 namespace vendor {
 namespace mokee {
 namespace livedisplay {
 namespace V2_0 {
-namespace sysfs {
+namespace sdm {
 
 using ::android::hardware::Return;
-using ::android::hardware::Void;
 
-#define FILE_ACO "/sys/class/graphics/fb0/aco"
-
-class AutoContrast : public IAutoContrast {
+class AdaptiveBacklight : public IAdaptiveBacklight {
   public:
-    bool isSupported();
+    static bool isSupported();
 
-    // Methods from ::vendor::mokee::livedisplay::V2_0::IAutoContrast follow.
+    // Methods from ::vendor::mokee::livedisplay::V2_0::IAdaptiveBacklight follow.
     Return<bool> isEnabled() override;
     Return<bool> setEnabled(bool enabled) override;
+
+  private:
+    bool enabled_ = false;
 };
 
-}  // namespace sysfs
+}  // namespace sdm
 }  // namespace V2_0
 }  // namespace livedisplay
 }  // namespace mokee
 }  // namespace vendor
-
-#endif  // VENDOR_MOKEE_LIVEDISPLAY_V2_0_AUTOCONTRAST_H

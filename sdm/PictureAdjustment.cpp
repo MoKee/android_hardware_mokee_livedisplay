@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The LineageOS Project
+ * Copyright (C) 2019-2020 The LineageOS Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,17 @@
  * limitations under the License.
  */
 
-#include "PictureAdjustment.h"
+#ifdef LIVES_IN_SYSTEM
+#define LOG_TAG "mokee.livedisplay@2.0-impl-sdm"
+#else
+#define LOG_TAG "vendor.mokee.livedisplay@2.0-impl-sdm"
+#endif
 
-#include <dlfcn.h>
+#include "livedisplay/sdm/PictureAdjustment.h"
 
-#include "Constants.h"
-#include "Types.h"
+#include <android-base/logging.h>
+
+#include "livedisplay/sdm/Utils.h"
 
 namespace vendor {
 namespace mokee {
@@ -27,93 +32,65 @@ namespace livedisplay {
 namespace V2_0 {
 namespace sdm {
 
-static sp<PictureAdjustment> sInstance;
+using ::android::OK;
+using ::android::hardware::Void;
 
-PictureAdjustment::PictureAdjustment(void* libHandle, uint64_t cookie) {
-    sInstance = this;
-
-    mLibHandle = libHandle;
-    mCookie = cookie;
-    disp_api_get_feature_version =
-            reinterpret_cast<int32_t (*)(uint64_t, uint32_t, void*, uint32_t*)>(
-                    dlsym(mLibHandle, "disp_api_get_feature_version"));
-    disp_api_get_global_pa_range = reinterpret_cast<int32_t (*)(uint64_t, uint32_t, void*)>(
-            dlsym(mLibHandle, "disp_api_get_global_pa_range"));
-    disp_api_get_global_pa_config =
-            reinterpret_cast<int32_t (*)(uint64_t, uint32_t, uint32_t*, void*)>(
-                    dlsym(mLibHandle, "disp_api_get_global_pa_config"));
-    disp_api_set_global_pa_config =
-            reinterpret_cast<int32_t (*)(uint64_t, uint32_t, uint32_t, void*)>(
-                    dlsym(mLibHandle, "disp_api_set_global_pa_config"));
-    memset(&mDefaultPictureAdjustment, 0, sizeof(HSIC));
+PictureAdjustment::PictureAdjustment(std::shared_ptr<SDMController> controller)
+    : controller_(std::move(controller)) {
+    if (!isReady()) {
+        LOG(FATAL) << "PictureAdjustment backend not ready, exiting.";
+    }
 }
 
-bool PictureAdjustment::isSupported() {
-    sdm_feature_version version{};
-    hsic_ranges r{};
-    uint32_t flags = 0;
+bool PictureAdjustment::isReady() {
     static int supported = -1;
 
     if (supported >= 0) {
-        goto out;
+        return supported;
     }
 
-    if (disp_api_get_feature_version == nullptr ||
-        disp_api_get_feature_version(mCookie, PICTURE_ADJUSTMENT_FEATURE, &version, &flags) != 0) {
+    if (utils::CheckFeatureVersion(controller_, utils::FEATURE_VER_SW_PA_API) != OK) {
         supported = 0;
-        goto out;
+        return false;
     }
 
-    if (version.x <= 0 && version.y <= 0 && version.z <= 0) {
+    HsicRanges r{};
+    if (controller_->getGlobalPaRange(&r) != OK) {
         supported = 0;
-        goto out;
-    }
-
-    if (disp_api_get_global_pa_range == nullptr ||
-        disp_api_get_global_pa_range(mCookie, 0, &r) != 0) {
-        supported = 0;
-        goto out;
+        return false;
     }
 
     supported = r.hue.max != 0 && r.hue.min != 0 && r.saturation.max != 0.f &&
                 r.saturation.min != 0.f && r.intensity.max != 0.f && r.intensity.min != 0.f &&
                 r.contrast.max != 0.f && r.contrast.min != 0.f;
-out:
+
     return supported;
 }
 
 HSIC PictureAdjustment::getPictureAdjustmentInternal() {
-    hsic_config config{};
-    uint32_t enable = 0;
+    HsicConfig config{};
 
-    if (disp_api_get_global_pa_config != nullptr) {
-        if (disp_api_get_global_pa_config(mCookie, 0, &enable, &config) == 0) {
-            return HSIC{static_cast<float>(config.data.hue), config.data.saturation,
-                        config.data.intensity, config.data.contrast,
-                        config.data.saturationThreshold};
-        }
+    if (controller_->getGlobalPaConfig(&config) == OK) {
+        return HSIC{static_cast<float>(config.data.hue), config.data.saturation,
+                    config.data.intensity, config.data.contrast, config.data.saturation_threshold};
     }
 
     return HSIC{};
 }
 
 void PictureAdjustment::updateDefaultPictureAdjustment() {
-    if (sInstance != nullptr) {
-        sInstance->mDefaultPictureAdjustment = sInstance->getPictureAdjustmentInternal();
-    }
+    default_pa_ = getPictureAdjustmentInternal();
 }
 
 // Methods from ::vendor::mokee::livedisplay::V2_0::IPictureAdjustment follow.
 Return<void> PictureAdjustment::getHueRange(getHueRange_cb _hidl_cb) {
     FloatRange range{};
-    hsic_ranges r{};
+    HsicRanges r{};
 
-    if (disp_api_get_global_pa_range != nullptr) {
-        if (disp_api_get_global_pa_range(mCookie, 0, &r) == 0) {
-            range.max = r.hue.max;
-            range.min = r.hue.min;
-            range.step = r.hue.step;
-        }
+    if (controller_->getGlobalPaRange(&r) == OK) {
+        range.max = r.hue.max;
+        range.min = r.hue.min;
+        range.step = r.hue.step;
     }
 
     _hidl_cb(range);
@@ -122,14 +99,12 @@ Return<void> PictureAdjustment::getHueRange(getHueRange_cb _hidl_cb) {
 
 Return<void> PictureAdjustment::getSaturationRange(getSaturationRange_cb _hidl_cb) {
     FloatRange range{};
-    hsic_ranges r{};
+    HsicRanges r{};
 
-    if (disp_api_get_global_pa_range != nullptr) {
-        if (disp_api_get_global_pa_range(mCookie, 0, &r) == 0) {
-            range.max = r.saturation.max;
-            range.min = r.saturation.min;
-            range.step = r.saturation.step;
-        }
+    if (controller_->getGlobalPaRange(&r) == OK) {
+        range.max = r.saturation.max;
+        range.min = r.saturation.min;
+        range.step = r.saturation.step;
     }
 
     _hidl_cb(range);
@@ -138,14 +113,12 @@ Return<void> PictureAdjustment::getSaturationRange(getSaturationRange_cb _hidl_c
 
 Return<void> PictureAdjustment::getIntensityRange(getIntensityRange_cb _hidl_cb) {
     FloatRange range{};
-    hsic_ranges r{};
+    HsicRanges r{};
 
-    if (disp_api_get_global_pa_range != nullptr) {
-        if (disp_api_get_global_pa_range(mCookie, 0, &r) == 0) {
-            range.max = r.intensity.max;
-            range.min = r.intensity.min;
-            range.step = r.intensity.step;
-        }
+    if (controller_->getGlobalPaRange(&r) == OK) {
+        range.max = r.intensity.max;
+        range.min = r.intensity.min;
+        range.step = r.intensity.step;
     }
 
     _hidl_cb(range);
@@ -154,14 +127,12 @@ Return<void> PictureAdjustment::getIntensityRange(getIntensityRange_cb _hidl_cb)
 
 Return<void> PictureAdjustment::getContrastRange(getContrastRange_cb _hidl_cb) {
     FloatRange range{};
-    hsic_ranges r{};
+    HsicRanges r{};
 
-    if (disp_api_get_global_pa_range != nullptr) {
-        if (disp_api_get_global_pa_range(mCookie, 0, &r) == 0) {
-            range.max = r.contrast.max;
-            range.min = r.contrast.min;
-            range.step = r.contrast.step;
-        }
+    if (controller_->getGlobalPaRange(&r) == OK) {
+        range.max = r.contrast.max;
+        range.min = r.contrast.min;
+        range.step = r.contrast.step;
     }
 
     _hidl_cb(range);
@@ -171,14 +142,12 @@ Return<void> PictureAdjustment::getContrastRange(getContrastRange_cb _hidl_cb) {
 Return<void> PictureAdjustment::getSaturationThresholdRange(
         getSaturationThresholdRange_cb _hidl_cb) {
     FloatRange range{};
-    hsic_ranges r{};
+    HsicRanges r{};
 
-    if (disp_api_get_global_pa_range != nullptr) {
-        if (disp_api_get_global_pa_range(mCookie, 0, &r) == 0) {
-            range.max = r.saturationThreshold.max;
-            range.min = r.saturationThreshold.min;
-            range.step = r.saturationThreshold.step;
-        }
+    if (controller_->getGlobalPaRange(&r) == OK) {
+        range.max = r.saturation_threshold.max;
+        range.min = r.saturation_threshold.min;
+        range.step = r.saturation_threshold.step;
     }
 
     _hidl_cb(range);
@@ -192,21 +161,17 @@ Return<void> PictureAdjustment::getPictureAdjustment(getPictureAdjustment_cb _hi
 
 Return<void> PictureAdjustment::getDefaultPictureAdjustment(
         getDefaultPictureAdjustment_cb _hidl_cb) {
-    _hidl_cb(mDefaultPictureAdjustment);
+    _hidl_cb(default_pa_);
     return Void();
 }
 
 Return<bool> PictureAdjustment::setPictureAdjustment(
         const ::vendor::mokee::livedisplay::V2_0::HSIC& hsic) {
-    hsic_config config = {0,
-                          {static_cast<int32_t>(hsic.hue), hsic.saturation, hsic.intensity,
-                           hsic.contrast, hsic.saturationThreshold}};
+    HsicConfig config = {0,
+                         {static_cast<int32_t>(hsic.hue), hsic.saturation, hsic.intensity,
+                          hsic.contrast, hsic.saturationThreshold}};
 
-    if (disp_api_set_global_pa_config != nullptr) {
-        return disp_api_set_global_pa_config(mCookie, 0, 1, &config) == 0;
-    }
-
-    return false;
+    return controller_->setGlobalPaConfig(&config) == OK;
 }
 
 }  // namespace sdm

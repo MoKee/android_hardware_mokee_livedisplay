@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The LineageOS Project
+ * Copyright (C) 2019-2020 The LineageOS Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,59 @@
  * limitations under the License.
  */
 
-#include "AdaptiveBacklight.h"
+#include "livedisplay/sdm/AdaptiveBacklight.h"
 
 #include <android-base/properties.h>
-#include <stdio.h>
-#include <string.h>
+#include <android-base/unique_fd.h>
+#include <cutils/sockets.h>
+#include <poll.h>
 
-#include "Constants.h"
-#include "Types.h"
-#include "Utils.h"
+namespace {
+constexpr size_t kDppsBufSize = 10;
+
+constexpr const char* kDaemonSocket = "pps";
+constexpr const char* kFossOff = "foss:off";
+constexpr const char* kFossOn = "foss:on";
+constexpr const char* kFossProperty = "ro.vendor.display.foss";
+constexpr const char* kSuccess = "Success";
+
+android::status_t SendDppsCommand(const char* cmd) {
+    android::base::unique_fd sock(
+            socket_local_client(kDaemonSocket, ANDROID_SOCKET_NAMESPACE_RESERVED, SOCK_STREAM));
+    if (sock < 0) {
+        return android::NO_INIT;
+    }
+
+    if (TEMP_FAILURE_RETRY(write(sock, cmd, strlen(cmd))) <= 0) {
+        return android::FAILED_TRANSACTION;
+    }
+
+    std::string result(kDppsBufSize, 0);
+    size_t len = result.length();
+    char* buf = &result[0];
+    ssize_t ret;
+    while ((ret = TEMP_FAILURE_RETRY(read(sock, buf, len))) > 0) {
+        if (ret == len) {
+            break;
+        }
+        len -= ret;
+        buf += ret;
+
+        struct pollfd p = {.fd = sock, .events = POLLIN, .revents = 0};
+
+        ret = poll(&p, 1, 20);
+        if ((ret <= 0) || !(p.revents & POLLIN)) {
+            break;
+        }
+    }
+
+    if (result.compare(0, strlen(kSuccess), kSuccess) == 0) {
+        return android::OK;
+    }
+
+    return android::BAD_VALUE;
+}
+}  // anonymous namespace
 
 namespace vendor {
 namespace mokee {
@@ -32,36 +76,25 @@ namespace sdm {
 
 using ::android::base::GetBoolProperty;
 
-AdaptiveBacklight::AdaptiveBacklight() {
-    mEnabled = false;
-}
-
 bool AdaptiveBacklight::isSupported() {
-    return GetBoolProperty(FOSS_PROPERTY, false);
+    return GetBoolProperty(kFossProperty, false);
 }
 
 // Methods from ::vendor::mokee::livedisplay::V2_0::IAdaptiveBacklight follow.
 Return<bool> AdaptiveBacklight::isEnabled() {
-    return mEnabled;
+    return enabled_;
 }
 
 Return<bool> AdaptiveBacklight::setEnabled(bool enabled) {
-    if (mEnabled == enabled) {
+    if (enabled_ == enabled) {
         return true;
     }
 
-    char* buf = new char[DPPS_BUF_SIZE];
-
-    sprintf(buf, "%s", enabled ? FOSS_ON : FOSS_OFF);
-    if (Utils::sendDPPSCommand(buf, DPPS_BUF_SIZE) == 0) {
-        if (strncmp(buf, "Success", 7) == 0) {
-            mEnabled = enabled;
-            delete[] buf;
-            return true;
-        }
+    if (SendDppsCommand(enabled ? kFossOn : kFossOff) == android::OK) {
+        enabled_ = enabled;
+        return true;
     }
 
-    delete[] buf;
     return false;
 }
 

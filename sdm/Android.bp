@@ -1,4 +1,4 @@
-// Copyright (C) 2019 The LineageOS Project
+// Copyright (C) 2019-2020 The LineageOS Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,15 +12,50 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+filegroup {
+    name: "vendor.mokee.livedisplay@2.0-sdm-ab",
+    srcs: [
+        "AdaptiveBacklight.cpp",
+    ],
+}
+
+filegroup {
+    name: "vendor.mokee.livedisplay@2.0-sdm-dm",
+    srcs: [
+        "DisplayModes.cpp",
+    ],
+}
+
+filegroup {
+    name: "vendor.mokee.livedisplay@2.0-sdm-pa",
+    srcs: [
+        "PictureAdjustment.cpp",
+    ],
+}
+
+filegroup {
+    name: "vendor.mokee.livedisplay@2.0-sdm-utils",
+    srcs: [
+        "SDMController.cpp",
+        "Utils.cpp",
+    ],
+}
+
+cc_library_headers {
+    name: "vendor.mokee.livedisplay@2.0-sdm-headers",
+    vendor_available: true,
+    export_include_dirs: ["include"],
+}
+
 cc_defaults {
     name: "livedisplay_sdm_defaults",
     defaults: ["hidl_defaults"],
     relative_install_path: "hw",
     srcs: [
-        "AdaptiveBacklight.cpp",
-        "DisplayModes.cpp",
-        "PictureAdjustment.cpp",
-        "Utils.cpp",
+        ":vendor.mokee.livedisplay@2.0-sdm-ab",
+        ":vendor.mokee.livedisplay@2.0-sdm-dm",
+        ":vendor.mokee.livedisplay@2.0-sdm-pa",
+        ":vendor.mokee.livedisplay@2.0-sdm-utils",
         "service.cpp",
     ],
     shared_libs: [
@@ -32,6 +67,9 @@ cc_defaults {
         "libhidltransport",
         "libutils",
         "vendor.mokee.livedisplay@2.0",
+    ],
+    header_libs: [
+        "vendor.mokee.livedisplay@2.0-sdm-headers",
     ],
 }
 

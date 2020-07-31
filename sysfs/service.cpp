@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The LineageOS Project
+ * Copyright (C) 2019-2020 The LineageOS Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,28 +21,18 @@
 #endif
 
 #include <android-base/logging.h>
-#include <binder/ProcessState.h>
 #include <hidl/HidlTransportSupport.h>
+#include <livedisplay/sysfs/AdaptiveBacklight.h>
+#include <livedisplay/sysfs/DisplayColorCalibration.h>
+#include <livedisplay/sysfs/SimpleMode.h>
+#include <livedisplay/sysfs/SunlightEnhancement.h>
 
-#include "AdaptiveBacklight.h"
-#include "AutoContrast.h"
-#include "ColorEnhancement.h"
-#include "DisplayColorCalibration.h"
-#include "ReadingEnhancement.h"
-#include "SunlightEnhancement.h"
+using ::android::OK;
+using ::android::sp;
+using ::android::status_t;
+using ::android::hardware::configureRpcThreadpool;
+using ::android::hardware::joinRpcThreadpool;
 
-using android::OK;
-using android::sp;
-using android::status_t;
-using android::hardware::configureRpcThreadpool;
-using android::hardware::joinRpcThreadpool;
-
-using ::vendor::mokee::livedisplay::V2_0::IAdaptiveBacklight;
-using ::vendor::mokee::livedisplay::V2_0::IAutoContrast;
-using ::vendor::mokee::livedisplay::V2_0::IColorEnhancement;
-using ::vendor::mokee::livedisplay::V2_0::IDisplayColorCalibration;
-using ::vendor::mokee::livedisplay::V2_0::IReadingEnhancement;
-using ::vendor::mokee::livedisplay::V2_0::ISunlightEnhancement;
 using ::vendor::mokee::livedisplay::V2_0::sysfs::AdaptiveBacklight;
 using ::vendor::mokee::livedisplay::V2_0::sysfs::AutoContrast;
 using ::vendor::mokee::livedisplay::V2_0::sysfs::ColorEnhancement;
@@ -50,121 +40,84 @@ using ::vendor::mokee::livedisplay::V2_0::sysfs::DisplayColorCalibration;
 using ::vendor::mokee::livedisplay::V2_0::sysfs::ReadingEnhancement;
 using ::vendor::mokee::livedisplay::V2_0::sysfs::SunlightEnhancement;
 
-int main() {
-    // sysfs-based HALs
-    sp<AdaptiveBacklight> ab;
-    sp<AutoContrast> ac;
-    sp<ColorEnhancement> ce;
-    sp<DisplayColorCalibration> dcc;
-    sp<ReadingEnhancement> re;
-    sp<SunlightEnhancement> se;
-
+status_t RegisterAsServices() {
     status_t status = OK;
 
-    LOG(INFO) << "LiveDisplay HAL service is starting.";
-
-    ab = new AdaptiveBacklight();
-    if (ab == nullptr) {
-        LOG(ERROR) << "Can not create an instance of LiveDisplay HAL AdaptiveBacklight Iface, "
-                      "exiting.";
-        goto shutdown;
-    }
-
-    ac = new AutoContrast();
-    if (ac == nullptr) {
-        LOG(ERROR) << "Can not create an instance of LiveDisplay HAL AutoContrast Iface, exiting.";
-        goto shutdown;
-    }
-
-    ce = new ColorEnhancement();
-    if (ce == nullptr) {
-        LOG(ERROR)
-                << "Can not create an instance of LiveDisplay HAL ColorEnhancement Iface, exiting.";
-        goto shutdown;
-    }
-
-    dcc = new DisplayColorCalibration();
-    if (dcc == nullptr) {
-        LOG(ERROR) << "Can not create an instance of LiveDisplay HAL DisplayColorCalibration Iface,"
-                   << " exiting.";
-        goto shutdown;
-    }
-
-    re = new ReadingEnhancement();
-    if (re == nullptr) {
-        LOG(ERROR) << "Can not create an instance of LiveDisplay HAL ReadingEnhancement Iface, "
-                      "exiting.";
-        goto shutdown;
-    }
-
-    se = new SunlightEnhancement();
-    if (se == nullptr) {
-        LOG(ERROR) << "Can not create an instance of LiveDisplay HAL SunlightEnhancement Iface, "
-                      "exiting.";
-        goto shutdown;
-    }
-
-    configureRpcThreadpool(1, true /*callerWillJoin*/);
-
+    sp<AdaptiveBacklight> ab = new AdaptiveBacklight();
     if (ab->isSupported()) {
         status = ab->registerAsService();
         if (status != OK) {
             LOG(ERROR) << "Could not register service for LiveDisplay HAL AdaptiveBacklight Iface ("
                        << status << ")";
-            goto shutdown;
+            return status;
         }
     }
 
-    if (ac->isSupported()) {
+    if (AutoContrast::isSupported()) {
+        sp<AutoContrast> ac = new AutoContrast();
         status = ac->registerAsService();
         if (status != OK) {
             LOG(ERROR) << "Could not register service for LiveDisplay HAL AutoContrast Iface ("
                        << status << ")";
-            goto shutdown;
+            return status;
         }
     }
 
-    if (ce->isSupported()) {
+    if (ColorEnhancement::isSupported()) {
+        sp<ColorEnhancement> ce = new ColorEnhancement();
         status = ce->registerAsService();
         if (status != OK) {
             LOG(ERROR) << "Could not register service for LiveDisplay HAL ColorEnhancement Iface ("
                        << status << ")";
-            goto shutdown;
+            return status;
         }
     }
 
-    if (dcc->isSupported()) {
+    if (DisplayColorCalibration::isSupported()) {
+        sp<DisplayColorCalibration> dcc = new DisplayColorCalibration();
         status = dcc->registerAsService();
         if (status != OK) {
             LOG(ERROR) << "Could not register service for LiveDisplay HAL DisplayColorCalibration"
                        << " Iface (" << status << ")";
-            goto shutdown;
+            return status;
         }
     }
 
-    if (re->isSupported()) {
+    if (ReadingEnhancement::isSupported()) {
+        sp<ReadingEnhancement> re = new ReadingEnhancement();
         status = re->registerAsService();
         if (status != OK) {
             LOG(ERROR) << "Could not register service for LiveDisplay HAL ReadingEnhancement Iface"
                        << " (" << status << ")";
-            goto shutdown;
+            return status;
         }
     }
 
+    sp<SunlightEnhancement> se = new SunlightEnhancement();
     if (se->isSupported()) {
         status = se->registerAsService();
         if (status != OK) {
             LOG(ERROR) << "Could not register service for LiveDisplay HAL SunlightEnhancement Iface"
                        << " (" << status << ")";
-            goto shutdown;
+            return status;
         }
     }
 
-    LOG(INFO) << "LiveDisplay HAL service is ready.";
-    joinRpcThreadpool();
-    // Should not pass this line
+    return OK;
+}
 
-shutdown:
+int main() {
+    LOG(DEBUG) << "LiveDisplay HAL service is starting.";
+
+    configureRpcThreadpool(1, true /*callerWillJoin*/);
+
+    if (RegisterAsServices() == OK) {
+        LOG(DEBUG) << "LiveDisplay HAL service is ready.";
+        joinRpcThreadpool();
+    } else {
+        LOG(ERROR) << "Could not register service for LiveDisplay HAL";
+    }
+
     // In normal operation, we don't expect the thread pool to shutdown
     LOG(ERROR) << "LiveDisplay HAL service is shutting down.";
     return 1;

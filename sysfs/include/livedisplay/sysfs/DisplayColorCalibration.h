@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The LineageOS Project
+ * Copyright (C) 2019-2020 The LineageOS Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,9 @@
  * limitations under the License.
  */
 
-#include "AutoContrast.h"
+#pragma once
 
-#include <android-base/file.h>
-#include <android-base/strings.h>
-
-#include <fstream>
-
-using android::base::ReadFileToString;
-using android::base::Trim;
-using android::base::WriteStringToFile;
+#include <vendor/mokee/livedisplay/2.0/IDisplayColorCalibration.h>
 
 namespace vendor {
 namespace mokee {
@@ -31,27 +24,19 @@ namespace livedisplay {
 namespace V2_0 {
 namespace sysfs {
 
-bool AutoContrast::isSupported() {
-    std::fstream aco(FILE_ACO, aco.in | aco.out);
+using ::android::hardware::hidl_vec;
+using ::android::hardware::Return;
 
-    return aco.good();
-}
+class DisplayColorCalibration : public IDisplayColorCalibration {
+  public:
+    static bool isSupported();
 
-// Methods from ::vendor::mokee::livedisplay::V2_0::IAutoContrast follow.
-Return<bool> AutoContrast::isEnabled() {
-    std::string tmp;
-    int32_t contents = 0;
-
-    if (ReadFileToString(FILE_ACO, &tmp)) {
-        contents = std::stoi(Trim(tmp));
-    }
-
-    return contents > 0;
-}
-
-Return<bool> AutoContrast::setEnabled(bool enabled) {
-    return WriteStringToFile(enabled ? "1" : "0", FILE_ACO, true);
-}
+    // Methods from ::vendor::mokee::livedisplay::V2_0::IDisplayColorCalibration follow.
+    Return<int32_t> getMaxValue() override;
+    Return<int32_t> getMinValue() override;
+    Return<void> getCalibration(getCalibration_cb _hidl_cb) override;
+    Return<bool> setCalibration(const hidl_vec<int32_t>& rgb) override;
+};
 
 }  // namespace sysfs
 }  // namespace V2_0
