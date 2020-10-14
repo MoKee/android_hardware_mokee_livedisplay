@@ -54,7 +54,6 @@ cc_defaults {
         "libbinder",
         "libcutils",
         "libhidlbase",
-        "libhidltransport",
         "libutils",
         "vendor.mokee.livedisplay@2.0",
     ],
